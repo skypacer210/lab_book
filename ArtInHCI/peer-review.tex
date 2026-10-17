@@ -1,0 +1,209 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+
+\definecolor{revcolor}{rgb}{0.1,0.25,0.6}
+\definecolor{actioncolor}{rgb}{0.0,0.5,0.2}
+
+\newcommand{\reviewercomment}[1]{\vspace{1.8ex}\noindent\textbf{\textcolor{revcolor}{#1}}}
+\newcommand{\response}{\vspace{1ex}\noindent\textbf{Response: }}
+
+\title{\textbf{Response to Reviewers' Comments}\\\large Manuscript ID: ArtInHCI44105\\\textbf{TCAI-Grasp: A Hierarchical Synergistic Framework for Language-Guided Robotic Grasping via Task-Conditioned Attention Injection}}
+
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent Dear Editors and Reviewers,
+
+\vspace{1ex}
+\noindent We sincerely thank the Associate Editor and the two anonymous Reviewers for their constructive, thorough, and insightful comments regarding our manuscript. The feedback has substantially elevated the quality, scientific rigor, clarity, and reproducibility of our paper.
+
+\vspace{1ex}
+\noindent In accordance with the reviewers' recommendations, we have performed an in-depth revision of our manuscript. The primary revisions and enhancements are summarized below:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{High-Resolution and Consolidated Figures:} Figures 1--3 have been completely redrawn as high-resolution vector/raster graphics with enlarged typographic labels. Figure 1 now merges the hierarchical architecture and the detailed task-augmented YOLOv12 into a cohesive subfigure panel (Figure 1a and 1b) to optimize layout readability.
+    \item \textbf{Comprehensive Visual \& Simulation Demonstrations:} We expanded the attention heatmap evaluation across four diverse objects and commands (Figure 6), illustrated the complete real-world and digital twin grasping phases (Figure 4), and added detailed Isaac Sim domain randomization (DR) visuals and configurations (Figure 5).
+    \item \textbf{Data Consistency and Terminology Rectification:} We rectified the terminology by replacing ``sub-centimeter accuracy'' with ``near-centimeter translation accuracy (1.2 cm)''. We formalized the SCV failure rate definitions and trial counts (Table 3), and reported stratified per-tier success rates across difficulty levels I, II, and III.
+    \item \textbf{Comprehensive Latency Breakdown and Baselines:} We benchmarked the end-to-end instruction-to-grasp pipeline (cold-start VLM parsing, DDS communication, edge perception, MoveIt2 planning, and physical execution), clarifying the operational boundary between edge servoing and cognitive reasoning.
+    \item \textbf{Mathematical Notation \& Control Ablations:} We eliminated overloaded notations (unifying task representations to $\mathbf{e}_{\text{task}}$, target descriptors to $s_{\text{target}}$, and pose parameters), strictly formulated the cross-modal attention tensors in Eq.~(3), detailed loss weights $\lambda_1$--$\lambda_4$ in Eq.~(4), and introduced Shuffled and Zero (null) embedding controls in Table 4.
+    \item \textbf{Citation Graph and Bibliography Audit:} We conducted an exhaustive audit of our citations. The orphaned reference to [20] in Table 2 was purged, all VLA foundations ([14] PaLM-E, [15] RT-2, [16] RT-1) were sequentially cited in Section 2, and the bibliography was strictly finalized to 18 sequentially indexed references ([1]--[18]).
+\end{enumerate}
+
+\noindent Below, please find our point-by-point responses to each comment raised by the Reviewers.
+
+\vspace{3ex}
+\hrule
+\vspace{2ex}
+
+\section*{Response to Reviewer 1}
+
+\reviewercomment{Comment 1.1: Improve the readability of Figures 1--5. Please consider enlarging the figures and their text, and using high-resolution images or vector graphics.}
+
+\response
+Thank you for this essential suggestion. In the revised manuscript, all figures have been completely reconstructed:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Figure 1 (Architecture \& Perception):} Consolidated into a high-resolution, unified dual-panel layout (Figure 1a for the 4-layer system overview and Figure 1b for the detailed task-conditioned YOLOv12 backbone and multi-task head), with enlarged fonts and clear signal flow pathways.
+    \item \textbf{Figure 2 (FSM State Machine):} Regenerated at 300+ DPI with tightened boundaries, high-contrast color coding for states and decision diamonds, and enlarged textual descriptions.
+    \item \textbf{Figure 3 (Hardware Deployment):} Reworked to cleanly depict host-edge physical deployment, ROS2 DDS communication interfaces, and sensor-actuator connections.
+    \item \textbf{Figure 4 (Physical Grasping Sequence):} Replaced with high-resolution frame sequences comparing physical UR5 execution and NVIDIA Isaac Sim digital twin trials.
+\end{itemize}
+
+\reviewercomment{Comment 1.2: Expand the examples in Figure 6. Only one heatmap comparison is currently presented. Additional examples involving different objects and instructions would make the results more representative.}
+
+\response
+We agree completely. In the revised manuscript, Figure 6 (formerly Figure 8) has been expanded into a 4-column multi-object benchmark:
+\begin{enumerate}[leftmargin=*]
+    \item \textit{``Grasp the red cup handle''} (articulated functional affordance in clutter).
+    \item \textit{``Pick up the screwdriver by the handle''} (elongated tool with distinct functional handle vs. shaft affordances).
+    \item \textit{``Hold the bottle near the bottom for handover''} (affordance grounding under human-robot cooperative interaction constraints).
+    \item \textit{``Grasp the scissors loop under the book''} (partially occluded object requiring fine-grained feature disambiguation).
+\end{enumerate}
+Across all cases, the comparison directly demonstrates that while the unconditioned baseline activates object centroids indiscriminately, TCAI dynamically concentrates attention specifically onto the requested functional contact regions.
+
+\reviewercomment{Comment 1.3: Provide the simulation setup associated with Table 4. Include images of the Isaac Sim scenes and examples of domain randomization, together with a brief description of the relevant settings, to clarify the sim-to-real transfer experiments.}
+
+\response
+Following your recommendation, we have incorporated Figure 5 and expanded Section 4.3 to provide an exhaustive breakdown of our Isaac Sim setup and Domain Randomization (DR) pipeline across 20,000 synthetic scenes:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Visual Dynamics (Fig.~5a--c):} Illumination intensities randomized within $[200, 1500]\text{ lux}$, light color temperatures varied across $[3000\text{ K}, 6500\text{ K}]$, and procedural PBR materials assigned to table surfaces and distractor meshes.
+    \item \textbf{Sensor Noise Modeling (Fig.~5e):} Emulation of Intel RealSense D435i depth artifacts by injecting zero-mean Gaussian depth perturbation ($\sigma = 2\text{ mm}$) and random boundary edge dropouts.
+    \item \textbf{Physical Dynamics \& Layout (Fig.~5d, f):} Random object distribution in a $0.4 \times 0.6\text{ m}$ workspace, clutter densities of 3--8 objects, surface friction coefficients $\mu \in [0.4, 1.2]$, and asset mass fluctuations of $\pm 20\%$.
+\end{itemize}
+These additions clearly justify the progression in Table 5 (sim-to-real transfer evaluation), demonstrating how DR raises physical zero-shot transfer from 32.5\% to 86.7\%.
+
+\reviewercomment{Comment 1.4: Ensure consistency in data, citations, and formatting. Please review the wording ``sub-centimeter accuracy'' alongside the reported result of 1.2 cm, the SCV-related numerical differences, and the missing entry for reference [20]. Please also ensure that the formatting follows the conference template.}
+
+\response
+We appreciate this thorough check. We have systematically addressed each item:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Terminology Correction:} All occurrences of ``sub-centimeter'' have been corrected to ``near-centimeter translation accuracy (1.2 cm)'' in the Abstract and throughout the text.
+    \item \textbf{SCV Numerical Consistency:} Section 4.2 and Table 3 explicitly define the 1,000 physical trial statistics: SCV intercepts 81\% of cognitive mismatches, reducing cognitive failures from 4.2\% (without SCV) to 0.8\% (with SCV), thereby driving the overall system failure rate down from 16.7\% to 13.3\% (a net absolute reduction of 3.4\%).
+    \item \textbf{Reference [20] Rectification:} As detailed in our response to Reviewer 2, the misplaced tag [20] in Table 2 was removed, the entire bibliography was audited, and the reference list now terminates consistently at [18].
+    \item \textbf{Conference Formatting:} Typography, table layouts, heading structures, and metadata strictly comply with the ArtInHCI conference proceedings format.
+\end{enumerate}
+
+\reviewercomment{Comment 1.5: Include examples of robotic grasping in simulation or real-world experiments. Images showing the grasping process and outcomes would help illustrate the practical effectiveness of the proposed method.}
+
+\response
+We have included Figure 4, which illustrates temporal snapshots ($t_1 \to t_4$) comparing real-world UR5 physical executions (Row A) against Isaac Sim digital twin counterparts (Row B) under dense clutter:
+\begin{itemize}[leftmargin=*]
+    \item $t_1$: Target affordance grounding and 6-DoF pose orientation extraction.
+    \item $t_2$: Collision-free trajectory generation via MoveIt2 avoiding adjacent distractor items.
+    \item $t_3$: Affordance contact engagement with the Robotiq 2F-85 adaptive parallel jaws.
+    \item $t_4$: Stable lifting and physical transport verification.
+\end{itemize}
+
+\vspace{3ex}
+\hrule
+\vspace{2ex}
+
+\section*{Response to Reviewer 2}
+
+\reviewercomment{Comment 2.1: The HCI dimension that ArtInHCI emphasizes is relatively thin: no user study, no interface or interaction design evaluation, and no human-in-the-loop assessment. The contribution is genuinely relevant to interactive robotic manipulation, but the paper would benefit from discussing this context.}
+
+\response
+We appreciate this insightful observation regarding the scope of ArtInHCI. While the core of this paper focuses on enabling centimeter-level physical execution from natural language, language-guided grasping is inherently an embodied Human-Robot Interaction (HRI) modality. In the revised Section 1 and Section 5, we have deepened the HRI perspective:
+\begin{itemize}[leftmargin=*]
+    \item We clarify that open-ended linguistic grounding directly eliminates the barrier of requiring users to program waypoints or specify bounding boxes manually, shifting robot collaboration toward natural conversational delegation.
+    \item In Section 3.4, the collaborative FSM explicitly incorporates a human-in-the-loop fallback mechanism (Graceful Degradation): when multi-view retries ($N=3$) fail, the system issues diagnostic linguistic prompts back to the user to disambiguate intent, preventing blind catastrophic failure.
+    \item In Section 5, we discuss how resolving the 3.2 s cognitive cold start via edge policy distillation is essential for fluid, interactive human-to-robot object handovers.
+\end{itemize}
+
+\reviewercomment{Comment 2.2: A sentence beginning ``Decomposed tasks are structured into executable JSON sequences'' is duplicated verbatim in Sec. 3.3 and should be deleted. It would also strengthen the paper to report per-tier results for the three difficulty levels.}
+
+\response
+Thank you for pointing out these editorial and empirical details:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Duplicate Sentence Removed:} The redundant duplicate sentence in Section 3.2 (formerly Section 3.3) has been removed.
+    \item \textbf{Stratified Per-Tier Performance:} In Section 4.2, we now explicitly report the stratified quantitative results across all three tiers:
+    \begin{itemize}
+        \item \textbf{Level I (Canonical isolated objects):} TCAI-Grasp achieves 96.0\% (vs. 78.0\% Modular, 72.0\% RT-2-X).
+        \item \textbf{Level II (Dense clutter with heavy occlusions):} TCAI-Grasp retains 88.0\% (vs. 42.0\% Modular, 61.0\% RT-2-X).
+        \item \textbf{Level III (Fine-grained semantic affordance disambiguation):} TCAI-Grasp achieves 79.0\%, dramatically outperforming the Modular cascade (14.0\%) and RT-2-X (47.0\%).
+    \end{itemize}
+\end{enumerate}
+
+\reviewercomment{Comment 2.3: Notation consistency: The symbol $t$ is used for the structured plan, the task embedding and the target description in Table 1. Two sentences begin with ``Where'' after display equations. The values of the loss weights in Eq. (4) are not given numerically.}
+
+\response
+We have thoroughly overhauled the mathematical notation throughout Section 3:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Notation Disambiguation:} The linguistic task embedding is now uniquely denoted by vector $\mathbf{e}_{\text{task}}$, the linguistic target description string is denoted by $s_{\text{target}}$, time frames are denoted by $t_1 \dots t_4$, and token sequence length is denoted by $L_t$.
+    \item \textbf{Grammar After Equations:} Sentences trailing Equations (1), (2), (3), and (4) have been modified to lowercase ``where'' integrated smoothly into the running sentence.
+    \item \textbf{Numerical Loss Weights:} In Section 3.3, empirical hyperparameters for Eq.~(4) are explicitly provided: $\lambda_1 = 1.0$ (CIoU bounding box), $\lambda_2 = 2.0$ (mask segmentation), $\lambda_3 = 2.5$ (6-DoF translation and geodesic rotation), and $\lambda_4 = 1.0$ (physical grasp quality scoring).
+\end{itemize}
+
+\reviewercomment{Comment 2.4: Reference list audit: Table 2 cites reference [20], but the bibliography ends at [18], and [19] does not appear to be cited anywhere. The citation attached to the RT-2-X baseline should also be checked to identify the exact model evaluated.}
+
+\response
+We apologize for this typographic discrepancy in our previous draft. We have conducted a rigorous audit of our citation graph:
+\begin{itemize}[leftmargin=*]
+    \item The erroneous tag `[20]` attached to the \textit{Heuristic-Enhanced} baseline in Table 2 was an uncleaned artifact and has been completely purged.
+    \item We reconciled our discussion of Vision-Language-Action baselines in Section 2: the RT family is now properly cited as PaLM-E [14], RT-2 [15], and RT-1 [16], correctly incorporating [16] in sequential order.
+    \item We clarified that our evaluated baseline in Table 2 is RT-2-X [15] (the multi-robot transfer variant of RT-2 trained on the Open X-Embodiment dataset).
+    \item The revised bibliography strictly contains 18 references ([1]--[18]), each cited in sequential numerical order in the main text without gaps or orphan entries.
+\end{itemize}
+
+\reviewercomment{Comment 2.5: Experimental setup reproducibility: The Grasp-Instruction-1K construction, splits, trial counts, and annotation procedures are missing. Neither the VLM nor the CLIP variant is named, and the threshold selection is not explained.}
+
+\response
+In Section 4.1, we have added comprehensive implementation specifications:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Benchmark Architecture:} Grasp-Instruction-1K covers 50 common household and industrial categories, split into 700 training, 100 validation, and 200 unseen testing scenes. Annotations include ground-truth 6-DoF antipodal grasps and pixel-level affordance masks.
+    \item \textbf{Identified Models:} The high-level cognitive core utilizes \textbf{Qwen2-VL-7B-Instruct}, while cross-modal semantic verification utilizes \textbf{OpenAI CLIP (ViT-B/32)}.
+    \item \textbf{Threshold Selection:} The threshold $\tau = 0.65$ was chosen based on validation ROC curves: it rejects 81\% of false semantic hallucinations while maintaining a false rejection rate under 2.5\% on valid scene affordances.
+\end{itemize}
+
+\reviewercomment{Comment 2.6: Latency comparison fairness: VLM reasoning runs on a remote workstation with a 3--4 second cold start. The authors should report the complete latency breakdown or clearly distinguish timing measurements. Furthermore, 10.2 FPS is lower than non-VLA detectors (35--45 FPS).}
+
+\response
+We appreciate this critical observation and have fully revised our timing discussion in Section 4.2. We explicitly benchmark the complete instruction-to-grasp temporal profile:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Cold-Start Cognitive Planning (Host RTX 4090):} $3.2 \pm 0.4\text{ s}$ (executed \textit{once} per multi-step instruction).
+    \item \textbf{Network Communication (ROS2 DDS):} $18 \pm 4\text{ ms}$.
+    \item \textbf{Edge Affordance Perception (Horizon X3 Pi):} $98\text{ ms}$ per frame ($\approx 10.2\text{ FPS}$, supporting closed-loop visual servoing).
+    \item \textbf{Motion Planning (MoveIt2 OMPL):} $210 \pm 45\text{ ms}$.
+    \item \textbf{Physical Trajectory Execution \& Gripping:} $4.5 \pm 0.8\text{ s}$.
+\end{itemize}
+We explicitly state in the text that while non-VLA detectors achieve 35--45 FPS, they lack any semantic affordance conditioning and fail open-ended tasks. Conversely, foundational VLAs like RT-2-X run end-to-end at 0.24 FPS ($\approx 4.1\text{ s}$ per control step). TCAI-Grasp successfully bridges this trade-off by isolating the one-time cognitive latency from high-frequency edge servoing.
+
+\reviewercomment{Comment 2.7: In Equation (3), the text states that language embeddings provide both keys and values, while the equation appears to use visual features as the value tensor. Clarify whether the task embedding is a single vector or a sequence of tokens. Add a control condition in the ablation study (shuffled or zero embedding).}
+
+\response
+We thank the reviewer for identifying this formulation ambiguity.
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Attention Tensor Formulation:} In Section 3.3, Equation (3) has been formalized. Visual features from the backbone are projected into queries $\mathbf{Q}_v \in \mathbb{R}^{N_v \times d}$. Linguistic tokens from BERT-tiny form a sequence of tokens $\mathbf{T} \in \mathbb{R}^{L_t \times d_t}$, which are linearly projected into task keys $\mathbf{K}_t = \mathbf{T}\mathbf{W}_K \in \mathbb{R}^{L_t \times d}$ and task values $\mathbf{V}_t = \mathbf{T}\mathbf{W}_V \in \mathbb{R}^{L_t \times d}$. Thus, visual queries attend over linguistic keys and values:
+    \begin{equation*}
+        \text{Attn}(\mathbf{Q}_v, \mathbf{K}_t, \mathbf{V}_t) = \text{Softmax}\left(\frac{\mathbf{Q}_v \mathbf{K}_t^T}{\sqrt{d}}\right) \mathbf{V}_t
+    \end{equation*}
+    \item \textbf{Control Ablation Baselines:} In Table 4, we added two explicit randomized controls:
+    \begin{itemize}
+        \item \textit{Shuffled Task Embedding:} Drops success rate to 62.4\% (worse than omitting TCAI entirely at 65.2\%), as mismatched linguistic vectors actively misguide attention.
+        \item \textit{Zero (Null) Task Embedding:} Yields 66.1\% success rate, proving that performance gains stem from genuine semantic conditioning rather than unconditioned network over-parameterization.
+    \end{itemize}
+\end{enumerate}
+
+\reviewercomment{Comment 2.8: Add recent VLA models and language-conditioned grasping methods to position the work more explicitly.}
+
+\response
+In Section 2 (Related Work), we broadened our contextual positioning:
+\begin{itemize}[leftmargin=*]
+    \item We integrated discussion of foundational end-to-end VLAs including PaLM-E [14], RT-1 [16], and RT-2 [15], contrasting their compute bottlenecks against our decoupled edge architecture.
+    \item We contextualized language-conditioned hierarchical systems including VoxPoser [17] and TidyBot [18], highlighting that while they synthesize spatial costmaps via API calls, TCAI-Grasp injects linguistic features directly into low-level feature pyramids for real-time edge affordance extraction.
+\end{itemize}
+
+\vspace{3ex}
+\noindent We once again express our sincere gratitude to the reviewers for their constructive insights, which have helped us deliver a substantially improved, rigorous, and polished manuscript.
+
+\vspace{2ex}
+\noindent Sincerely,\\
+\textbf{The Authors}
+
+\end{document}
